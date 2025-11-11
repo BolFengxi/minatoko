@@ -162,41 +162,33 @@ class _AddProductPageState extends State<AddProductPage> {
                 ),
               ),
 
-              // == Thumbnail Produk ==
-              Padding(
+                // == Thumbnail Produk ==
+                Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: TextFormField(
                   decoration: InputDecoration(
-                    hintText: "URL Thumbnail",
-                    labelText: "URL Thumbnail",
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(5.0),
-                    ),
+                  hintText: "URL Thumbnail",
+                  labelText: "URL Thumbnail",
+                  border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(5.0),
+                  ),
                   ),
                   onChanged: (String? value) {
-                    setState(() {
-                      _thumbnail = value!;
-                    });
+                  setState(() {
+                  _thumbnail = value!;
+                  });
                   },
                   validator: (String? value) {
-                    if (value == null || value.isEmpty) {
-                      return "Thumbnail produk tidak boleh kosong!";
-                    }
-                    // final urlPattern = RegExp(
-                    //   r'^https?:\/\/([\w-]+\.)+[\w-]+(\/[\w- .\/?%&=]*)?$',
-                    // );
-                    // if (!urlPattern.hasMatch(value)) {
-                    //   return "URL thumbnail tidak valid!";
-                    // }
-                    // if (!value.toLowerCase().endsWith('.jpg') &&
-                    //   !value.toLowerCase().endsWith('.jpeg') &&
-                    //   !value.toLowerCase().endsWith('.png')) {
-                    //   return "URL harus mengarah ke file gambar (jpg/jpeg/png)!";
-                    // }
-                    return null;
+                  if (value == null || value.isEmpty) {
+                  return "Thumbnail produk tidak boleh kosong!";
+                  }
+                  if (!value.startsWith('https://') && !value.startsWith('http://')) {
+                  return "URL harus diawali dengan https:// atau http://";
+                  }
+                  return null;
                   },
                 ),
-              ),
+                ),
 
               // == Featured Product ==
               Padding(

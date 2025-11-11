@@ -42,3 +42,72 @@
     - Hot Reload: Memperbarui UI dengan mempertahankan state, lebih cepat
     - Hot Restart: Memulai ulang aplikasi dari awal, menghapus semua state
 
+TUGAS 8
+### Halaman Form Tambah Produk
+- Membuat halaman baru "FormTambahProduk" dengan elemen input:
+    - name (String)
+    - price (number, int/double)
+    - description (String)
+    - thumbnail (String - URL)
+    - category (String - pilihan/dropdown)
+    - isFeatured (bool - switch/checkbox)
+- Semua input divalidasi:
+    - Tidak boleh kosong.
+    - Tipe data sesuai model (price harus numeric; thumbnail berupa URL sederhana; category dipilih dari daftar).
+- Terdapat tombol "Save" yang jika valid menampilkan pop-up (AlertDialog) yang merangkum data yang diisi.
+- Dari halaman utama, tombol "Tambah Produk" mengarahkan ke halaman form menggunakan Navigator.push().
+
+Checklist fungsi yang dipenuhi:
+- [v] Minimal tiga elemen input (name, price, description)
+- [v] Elemen input tambahan sesuai model (thumbnail, category, isFeatured)
+- [v] Tombol Save menampilkan pop-up berisi data form
+- [v] Validasi: tidak kosong dan tipe data sesuai
+- [v] Navigasi dari halaman utama ke form saat menekan "Tambah Produk"
+
+### Drawer
+- Drawer berisi ddua opsi:
+    - Halaman Utama 
+    - Tambah Produk
+- Pemilihan opsi akan mengarahkan pengguna ke halaman terkait.
+- Drawer ditempatkan di Scaffold utama sehingga tersedia di semua halaman yang memerlukan navigasi konsisten.
+
+### Validasi Form
+- Setiap field memiliki validator:
+    - name, description, category, thumbnail: validator non-empty.
+    - price: parse sebagai number; tampilkan pesan jika parsing gagal atau nilai negatif.
+    - isFeatured: boolean, tidak perlu validator selain memastikan ada kontrol.
+- Saat tombol Save ditekan:
+    - Jika form valid -> tampilkan AlertDialog dengan ringkasan (mis. Name, Price, Category, Featured).
+    - Jika tidak valid -> tampilkan pesan error per-field.
+
+1. Navigator.push() vs Navigator.pushReplacement()
+- Navigator.push():
+    - Menambahkan route baru ke stack; pengguna dapat kembali dengan back button.
+    - Gunakan saat ingin memungkinkan pengguna kembali ke halaman sebelumnya, mis. dari Home ke FormTambahProduk agar pengguna bisa membatalkan dan kembali.
+- Navigator.pushReplacement():
+    - Mengganti route saat ini dengan route baru; tidak memungkinkan kembali ke route yang diganti.
+    - Gunakan untuk operasi yang tidak boleh kembali, mis. setelah login sukses mengganti layar login, atau when replacing splash screen dengan main screen.
+- Football Shop:
+    - Navigasi ke form tambah produk: gunakan push() (biarkan pengguna kembali).
+    - Setelah men-submit dan ingin langsung menampilkan list terbaru tanpa menumpuk route, gunakan Navigator.pop() dengan result atau gunakan pushReplacement ketika mengganti flow utama.
+
+2. Hierarki widget (Scaffold, AppBar, Drawer)
+- Scaffold sebagai kerangka halaman (body, appBar, drawer, floatingActionButton).
+- AppBar untuk judul, aksi cepat (mis. tombol cari atau icon cart).
+- Drawer untuk navigasi global.
+- Pola: setiap halaman utama memakai Scaffold yang konsisten — AppBar + Drawer + body — sehingga struktur UI konsisten di seluruh aplikasi.
+
+3. Keuntungan layout widget saat membuat form (Padding, SingleChildScrollView, ListView)
+- Padding: menambah jarak sekitar elemen agar UI rapi dan mudah disentuh.
+    - Implementasi: Pada addproduct_form.dart untuk membuat memisahkan input-inputnya
+- SingleChildScrollView: mencegah overflow saat keyboard muncul; memungkinkan scroll untuk form pendek.
+    - Implementasi: Pada addproduct_form.dart untuk membuat layout inputnya 
+- ListView: cocok untuk form panjang atau daftar input karena bawaan scroll dan penghematan memori.
+    - Implementasi: Pada drawer
+
+
+4. Tema dan identitas visual
+- Gunakan ThemeData untuk konsistensi:
+    - primaryColor / colorScheme.primary untuk warna utama brand. (kuning)
+    - secondaryColor untuk aksen (tombol, chip, isFeatured highlights). (Untuk teks menggunakan warna hitam)
+
