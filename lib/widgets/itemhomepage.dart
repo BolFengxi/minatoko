@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:minatoko/screens/addproduct_form.dart';
+import 'package:minatoko/screens/products_entry_list.dart';
+import 'package:minatoko/screens/login.dart';
+import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:provider/provider.dart';
 
 class ItemHomePage {
   final String name;
@@ -17,22 +21,33 @@ class ItemCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-
       child: InkWell(
         onTap: () {
           ScaffoldMessenger.of(context)
             ..hideCurrentSnackBar()
             ..showSnackBar(
-              SnackBar(
-                content: Text("Kamu telah menekan tombol ${item.name}"),
+              SnackBar(content: Text("Kamu telah menekan tombol ${item.name}")),
+            );
+          if (item.name == "Create Products") {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => AddProductPage()),
+            );
+          } else if (item.name == "All Products") {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ProductEntryListPage(mode: "all"),
               ),
             );
-            if (item.name == "Create Products") {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => AddProductPage()),
-              );
-            }
+          } else if (item.name == "My Products") {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ProductEntryListPage(mode: "mine"),
+              ),
+            );
+          }
         },
 
         child: Container(
@@ -46,9 +61,8 @@ class ItemCard extends StatelessWidget {
               // Menyusun ikon dan teks di tengah kartu.
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-
-          Icon(item.icon, color: Colors.white, size: 30.0),
-          const Padding(padding: EdgeInsets.all(3)),
+                Icon(item.icon, color: Colors.white, size: 30.0),
+                const Padding(padding: EdgeInsets.all(3)),
                 Text(
                   item.name,
                   textAlign: TextAlign.center,

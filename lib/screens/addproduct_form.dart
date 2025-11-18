@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:minatoko/widgets/left_drawer.dart';
+import 'dart:convert';
+import 'package:provider/provider.dart';
+import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:minatoko/screens/menu.dart'; // Pastikan MyHomePage diimpor dari sini
 
 class AddProductPage extends StatefulWidget {
   const AddProductPage({super.key});
@@ -14,11 +18,12 @@ class _AddProductPageState extends State<AddProductPage> {
   String _name = "";
   num _price = 0;
   String _description = "";
-  String _category = "Football Boots";
+  // Inisialisasi awal harus sesuai dengan salah satu pilihan di _categories
+  String _category = "Football Boots"; 
   String _thumbnail = "";
   bool _isFeatured = false;
 
-  final List<String> _categories = [
+  final List<String> _categories = const [
     'Ball',
     'Football Boots',
     'Kits & Jerseys',
@@ -29,6 +34,9 @@ class _AddProductPageState extends State<AddProductPage> {
 
   @override
   Widget build(BuildContext context) {
+    // Dapatkan instance CookieRequest (pbp_django_auth)
+    final request = context.watch<CookieRequest>();
+
     return Scaffold(
       appBar: AppBar(
         title: const Center(child: Text('Add New Product')),
@@ -87,6 +95,7 @@ class _AddProductPageState extends State<AddProductPage> {
                   ),
                   onChanged: (String? value) {
                     setState(() {
+                      // Menggunakan num.tryParse() untuk penanganan input numerik
                       _price = num.tryParse(value!) ?? 0;
                     });
                   },
@@ -116,11 +125,12 @@ class _AddProductPageState extends State<AddProductPage> {
                       borderRadius: BorderRadius.circular(5.0),
                     ),
                   ),
-                  initialValue: _category,
+                  value: _category, // Menggunakan value untuk initial value
                   items: _categories
                       .map(
                         (cat) => DropdownMenuItem(
                           value: cat,
+                          // Hanya menampilkan huruf pertama kapital
                           child: Text(cat[0].toUpperCase() + cat.substring(1)),
                         ),
                       )
@@ -162,35 +172,35 @@ class _AddProductPageState extends State<AddProductPage> {
                 ),
               ),
 
-                // == Thumbnail Produk ==
-                Padding(
+              // == Thumbnail Produk ==
+              Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: TextFormField(
                   decoration: InputDecoration(
-                  hintText: "URL Thumbnail",
-                  labelText: "URL Thumbnail",
-                  border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(5.0),
-                  ),
+                    hintText: "URL Thumbnail",
+                    labelText: "URL Thumbnail",
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(5.0),
+                    ),
                   ),
                   onChanged: (String? value) {
-                  setState(() {
-                  _thumbnail = value!;
-                  });
+                    setState(() {
+                      _thumbnail = value!;
+                    });
                   },
                   validator: (String? value) {
-                  if (value == null || value.isEmpty) {
-                  return "Thumbnail produk tidak boleh kosong!";
-                  }
-                  if (!value.startsWith('https://') && !value.startsWith('http://')) {
-                  return "URL harus diawali dengan https:// atau http://";
-                  }
-                  return null;
+                    if (value == null || value.isEmpty) {
+                      return "Thumbnail produk tidak boleh kosong!";
+                    }
+                    if (!value.startsWith('https://') && !value.startsWith('http://')) {
+                      return "URL harus diawali dengan https:// atau http://";
+                    }
+                    return null;
                   },
                 ),
-                ),
+              ),
 
-              // == Featured Product ==
+              // == Featured Product Switch ==
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: SwitchListTile(
@@ -204,7 +214,7 @@ class _AddProductPageState extends State<AddProductPage> {
                 ),
               ),
 
-              // == Tombol Save ==
+              // == Tombol Save (diperbaiki) ==
               Align(
                 alignment: Alignment.bottomCenter,
                 child: Padding(
@@ -213,38 +223,45 @@ class _AddProductPageState extends State<AddProductPage> {
                     style: ButtonStyle(
                       backgroundColor: WidgetStateProperty.all(Colors.yellow),
                     ),
-                    onPressed: () {
+                    onPressed: () async { // <-- ASYNC FUNCTION
                       if (_formKey.currentState!.validate()) {
-                        showDialog(
-                          context: context,
-                          builder: (context) {
-                            return AlertDialog(
-                              title: const Text("Berita berhasil disimpan!"),
-                              content: SingleChildScrollView(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text("Nama Produk: $_name"),
-                                    Text("Harga Produk: $_price"),
-                                    Text("Kategori: $_category"),
-                                    Text("Deskripsi: $_description"),
-                                    Text("Thumbnail URL: $_thumbnail"),
-                                    Text("Produk Unggulan: ${_isFeatured ? "Ya" : "Tidak"}"),
-                                  ],
-                                ),
-                              ),
-                              actions: [
-                                TextButton(
-                                  child: const Text('OK'),
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                    _formKey.currentState!.reset();
-                                  },
-                                ),
-                              ],
-                            );
-                          },
+                        
+                        // Kirim data ke Django
+                        final response = await request.postJson(
+                          // GANTI URL INI
+                          "http://localhost:8000/create-product-flutter/", 
+                          jsonEncode({
+                            "name": _name, 
+                            "price": _price.toInt(), // Konversi ke int
+                            "description": _description, 
+                            "thumbnail": _thumbnail, 
+                            "category": _category, 
+                            "is_featured": _isFeatured, 
+                            "userId": request.jsonData['id'],
+                          }),
                         );
+                        
+                        if (context.mounted) {
+                          if (response['status'] == 'success') {
+                            ScaffoldMessenger.of(context)
+                                .showSnackBar(const SnackBar(
+                              content: Text("Product successfully saved!"),
+                            ));
+                            
+                            // Navigasi ke halaman utama
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => MyHomePage()), 
+                            );
+                          } else {
+                            // Tampilkan pesan error dari Django (jika ada)
+                            ScaffoldMessenger.of(context)
+                                .showSnackBar(SnackBar(
+                              content: Text(response['message'] ?? "Something went wrong, please try again."),
+                            ));
+                          }
+                        }
                       }
                     },
                     child: const Text(

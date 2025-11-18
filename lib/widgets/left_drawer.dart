@@ -1,12 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:minatoko/screens/menu.dart';
 import 'package:minatoko/screens/addproduct_form.dart';
+import 'package:minatoko/screens/products_entry_list.dart';
+import 'package:minatoko/screens/login.dart';
+import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:provider/provider.dart';
 
 class LeftDrawer extends StatelessWidget {
   const LeftDrawer({super.key});
 
   @override
   Widget build(BuildContext context) {
+
+    final request = context.watch<CookieRequest>();
+
     return Drawer(
       child: ListView(
         children: [
@@ -31,6 +38,7 @@ class LeftDrawer extends StatelessWidget {
               ],
             ),
           ),
+
           ListTile(
             leading: const Icon(Icons.home_outlined),
             title: const Text('Home'),
@@ -41,6 +49,7 @@ class LeftDrawer extends StatelessWidget {
               );
             },
           ),
+
           ListTile(
             leading: const Icon(Icons.add_circle_outline),
             title: const Text('Add Product'),
@@ -49,6 +58,48 @@ class LeftDrawer extends StatelessWidget {
                 context,
                 MaterialPageRoute(builder: (context) => AddProductPage()),
               );
+            },
+          ),
+
+          ListTile(
+            leading: const Icon(Icons.list),
+            title: const Text('Product List'),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ProductEntryListPage()),
+              );
+            },
+          ),
+
+          ListTile(
+            leading: const Icon(Icons.logout),
+            title: const Text('Logout'),
+            onTap: () async {
+              final response = await request.logout(
+                "http://localhost:8000/auth/logout/",
+              );
+
+              if (!context.mounted) return;
+
+              final message = response["message"];
+
+              if (response["status"]) {
+                final uname = response["username"];
+
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text("$message See you again, $uname.")),
+                );
+
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => const LoginPage()),
+                );
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(message)),
+                );
+              }
             },
           ),
         ],
