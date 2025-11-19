@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:minatoko/model/product_entry.dart';
-import 'package:minatoko/screens/login.dart';
-import 'package:pbp_django_auth/pbp_django_auth.dart';
-import 'package:provider/provider.dart';
 
 class ProductEntryCard extends StatelessWidget {
   final ProductEntry product;
@@ -30,20 +27,22 @@ class ProductEntryCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // --- BADGES ROW ---
+              // --- BADGES ---
               Padding(
                 padding: const EdgeInsets.only(top: 12, left: 12, right: 12),
                 child: Row(
                   children: [
-                    _buildBadge("BOOT", Colors.blue),
+                    _buildBadge(product.category, Colors.blue),
                     const SizedBox(width: 8),
-                    _buildBadge("Featured", Colors.orange),
+                    if (product.isFeatured)
+                      _buildBadge("FEATURED", Colors.orange),
                   ],
                 ),
               ),
 
-              // --- PRODUCT IMAGE ---
               const SizedBox(height: 8),
+
+              // --- IMAGE ---
               ClipRRect(
                 borderRadius: BorderRadius.circular(10),
                 child: Image.network(
@@ -62,6 +61,7 @@ class ProductEntryCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // NAME
                     Text(
                       product.name,
                       style: const TextStyle(
@@ -69,8 +69,21 @@ class ProductEntryCard extends StatelessWidget {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
+
                     const SizedBox(height: 6),
 
+                    // PRICE
+                    Text(
+                      "Price: Rp ${product.price}",
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+
+                    const SizedBox(height: 6),
+
+                    // DESCRIPTION
                     Text(
                       product.description,
                       maxLines: 2,
@@ -78,12 +91,24 @@ class ProductEntryCard extends StatelessWidget {
                       style: const TextStyle(fontSize: 14),
                     ),
 
+                    const SizedBox(height: 10),
+
+                    // EXTRA INFO
+                    Text(
+                      "Product ID : ${product.productId}",
+                      style: const TextStyle(fontSize: 13, color: Colors.black54),
+                    ),
+                    Text(
+                      "User ID    : ${product.userId ?? '-'}",
+                      style: const TextStyle(fontSize: 13, color: Colors.black54),
+                    ),
+
                     const SizedBox(height: 12),
 
                     GestureDetector(
                       onTap: onTap,
                       child: const Text(
-                        "View",
+                        "View Details",
                         style: TextStyle(
                           fontSize: 16,
                           color: Colors.blue,
