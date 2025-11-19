@@ -107,7 +107,7 @@ class _LoginPageState extends State<LoginPage> {
                       );
 
                       if (request.loggedIn) {
-                        UserSession.userId = response['user_id'];
+                        UserSession.userId = response['id'];
                         String message = response['message'];
                         String uname = response['username'];
                         if (context.mounted) {
